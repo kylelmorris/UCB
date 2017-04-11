@@ -404,7 +404,7 @@ do
     echo ''
     #Report and store values
     echo '# of gautomatch particle picks:'
-    ptclno=$(wc -l $gautostar)
+    ptclno=$(wc -l $gautostar | awk '{print $1}')
     echo $ptclno
     echo ''
 
