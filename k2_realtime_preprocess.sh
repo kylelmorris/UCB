@@ -421,9 +421,9 @@ do
     ctfmrc=${ctffile%.*}"_ctf.mrc"
     ln -s ${ctffile} ${ctfmrc}
     echo ''
-    echo "$ ""relion_display --i ${ctfmrc} &"
+    echo "$ ""relion_display --i ${ctfmrc} --scale 0.5 &"
     echo ''
-    relion_display --i ${ctfmrc} &
+    relion_display --i ${ctfmrc} --scale 0.5 &
 
     echo -e "\e[92m===============================================================\e[0m"
     echo 'Done processing with gautomatch...'
