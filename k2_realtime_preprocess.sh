@@ -248,7 +248,6 @@ do
   processedno=$(wc -l .processed.dat | awk '{print $1}')
   echo 'Number of files in queue:  '$queueno
   echo 'Number of files processed: '$processedno
-  echo ''
   #echo 'To check gctf estimation values, in a new terminal run:'
   #echo 'grep -e Final -e "Resolution limit" *gctf.log'
   #echo ''
@@ -372,7 +371,7 @@ do
     #Report and store values
     echo 'Final ctf values:'
     grep -e Final gctf.log
-    defocus=$(grep -e Final gctf.log | awk '{print $2,$3}')
+    defocus=$(grep -e Final gctf.log | awk '{print $1,$2,$3}')
     grep -e 'Resolution limit' gctf.log
     reslimit=$(grep -e 'Resolution limit' gctf.log | awk '{print $7}')
     grep -A 6 'Differences from Original Values' gctf.log
