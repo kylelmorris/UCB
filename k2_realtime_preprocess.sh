@@ -21,6 +21,16 @@
 #
 ############################################################################
 
+# TO DO #
+
+# 1 - make file listing more robust
+# 2 - See make_gctf_mic_star.com for making star file at end
+# 3 - local ctf estimation???
+#
+#
+
+############################################################################
+
 #colors for echo
 #echo -e "\e[92m test \e[0"  #green
 #echo -e "\e[91m test \e[0"  #red
@@ -61,7 +71,7 @@ echo "Movies are marked as 'processed' by presence of *_preprocess.log,"
 echo "but you may also find the summary information in this log useful for micrograph screening."
 echo ""
 echo "Dependancies:"
-echo "motioncor2, gctf-v1.06, gautomatch, imod, Relion-2.0"
+echo "motioncor2, gctf-v1.06, gautomatch, Relion-2.0"
 echo ""
 echo "##########################################################################"
 echo ""
@@ -78,8 +88,11 @@ if [[ -e .sniffsettings ]] ; then
   read p
   if [[ $p == y ]] ; then
     readsettings=1
-  else
+  elif [[ $p == n ]] ; then
     readsettings=0
+  else
+    echo 'input not recognised, exiting...'
+    exit
   fi
 else
   echo 'No previous settings found... you should input these next...'
@@ -116,10 +129,10 @@ elif [[ $readsettings == 0 ]] ; then
   echo "Note that the executable, input, output and log file will be setup for you..."
   echo ''
   echo "Rapid whole frame alignment, 38 frames in ~30 sec on 3 gpu:"
-  echo "-FtBin 2.0 -PixSize 0.573 -Bft 150 -kV 300 -FmDose 1.426 -Throw 2 -Gpu 0 1 2"
+  echo "-FtBin 2.0 -PixSize 0.573 -Bft 150 -kV 300 -FmDose 1.426 -Throw 2 -Gpu 0 1 2 3"
   echo ''
-  echo "Thorough patch based alignment for final refinements:"
-  echo "-FtBin 2.0 -PixSize 0.573 -Bft 150 -kV 300 -FmDose 1.426 -Throw 2 -Patch 5 5 -Iter 10 -Tol 0.5 -Gpu 0 1 2"
+  echo "Thorough patch based alignment for final refinements, 38 frames in ~120 sec on 4 gpus:"
+  echo "-FtBin 2.0 -PixSize 0.573 -Bft 150 -kV 300 -FmDose 1.426 -Throw 2 -Patch 5 5 -Iter 10 -Tol 0.5 -Gpu 0 1 2 3"
   echo ''
   read p
   cor2opt=$p
@@ -231,8 +244,7 @@ do
   echo -e "\e[92m===============================================================================\e[0m"
   echo "Monitoring for new movies..."
   echo ''
-  echo 'Looking for *suffix.ext:   ' $ext
-  echo ''
+  echo 'Looking for *suffix.ext:   '$ext
 
   ##########################################################
   # TO DO: THIS NEEDS IMPROVING, SOMETIMES FILES ORDER IS WEIRD
@@ -253,6 +265,7 @@ do
   #echo ''
   echo -e "\e[92m===============================================================\e[0m"
   echo "Previous file:               ${name}"
+  echo -e "\e[92m===============================================================\e[0m"
   echo "Defocus estimation:          ${defocus}"
   echo "Defocus res limit est:       ${reslimit}"
   echo "Defocus validation:"
@@ -262,10 +275,8 @@ do
   echo ""
   echo "Processing time was (total): ${runtime} (seconds)"
   echo ''
-  ptcltot=$(wc -l *.box | tail -n 1 | awk '{print $1}')
+  ptcltot=$(wc -l *automatch.star | tail -n 1 | awk '{print $1}')
   echo "Particles picked, total:     ${ptcltot}"
-  echo -e "\e[92m===============================================================\e[0m"
-  echo ""
 
   #Work on oldest file in queue and check off on done list
   file=$(sed -n 1p .queue.dat)
@@ -288,11 +299,11 @@ do
   if [[ -z $file ]] ; then
     echo 'Nothing in queue to work on...'
     echo ''
+    sleep 2
   else
     #loop to check if file size is changing before processing
     while true ; do
       echo "File size stability check:"
-      echo ''
       fsz1=$(ls -an ${file} | awk '{print $5}')
       echo $fsz1" K @ 0.33 sec"
       sleep 0.333
@@ -303,11 +314,9 @@ do
       echo $fsz3" K @ 1.00 sec"
       sleep 0.333
       if [[ ($fsz1 == $fsz2) && ($fsz2 == $fsz3) && ($fsz1 == $fsz3) ]]; then
-        echo ''
         echo 'File size appears stable, very good, proceeding to process...'
         break
       else
-        echo ''
         echo 'File size is changing, patiently assumung it is still being written to disk'
       fi
     done
@@ -334,7 +343,6 @@ do
     echo -e "\e[92m===============================================================\e[0m"
     echo 'Done processing with motioncor2...'
     echo -e "\e[92m===============================================================\e[0m"
-    echo ''
     grep -A 5 'Create aligned sum based upon full frame alignment.' $cor2log
     echo ''
     echo 'Creating quick look jpeg using imod mrc2tif...'
@@ -376,7 +384,6 @@ do
     reslimit=$(grep -e 'Resolution limit' gctf.log | awk '{print $7}')
     grep -A 6 'Differences from Original Values' gctf.log
     ctfvalidation=$(grep -A 6 'Differences from Original Values' gctf.log | tail -n 5 | awk '{print $1,$6}')
-    echo ''
     echo 'Creating quick look jpeg using imod mrc2tif...'
 
     #Uses imod mrc2tif package for quick look jpg
@@ -407,22 +414,28 @@ do
     echo $ptclno
     echo ''
 
-    #Display micrograph and particle picks with relion display
-    echo ''
-    echo 'Displaying micrograph and particle picks using Relion-2.0...'
-    echo ''
-    echo "$ ""relion_display ${displayopt} --pick --coords ${gautostar} --i ${newfile} &"
-    echo ''
+    if [[ -z $displayopt ]] ; then
+      echo ""
+      echo "Not displaying output sum and ctf..."
+      echo ""
+    else
+      #Display micrograph and particle picks with relion display
+      echo ''
+      echo 'Displaying micrograph and particle picks using Relion-2.0...'
+      echo ''
+      echo "$ ""relion_display ${displayopt} --pick --coords ${gautostar} --i ${newfile} &"
+      echo ''
 
-    #### TO DO: THIS NEEDS PROCESSID CAPTURED SO CAN BE CLOSED FOR NEXT ROUND ####
-    relion_display ${displayopt} --pick --coords  --i ${newfile} &
+      #### TO DO: THIS NEEDS PROCESSID CAPTURED SO CAN BE CLOSED FOR NEXT ROUND ####
+      relion_display ${displayopt} --pick --coords  --i ${newfile} &
 
-    ctfmrc=${ctffile%.*}"_ctf.mrc"
-    ln -s ${ctffile} ${ctfmrc}
-    echo ''
-    echo "$ ""relion_display --i ${ctfmrc} --scale 0.5 &"
-    echo ''
-    relion_display --i ${ctfmrc} --scale 0.5 &
+      ctfmrc=${ctffile%.*}"_ctf.mrc"
+      ln -s ${ctffile} ${ctfmrc}
+      echo ''
+      echo "$ ""relion_display --i ${ctfmrc} --scale 0.5 &"
+      echo ''
+      relion_display --i ${ctfmrc} --scale 0.5 &
+    fi
 
     echo -e "\e[92m===============================================================\e[0m"
     echo 'Done processing with gautomatch...'
@@ -451,6 +464,5 @@ do
     echo ''
 
   fi
-  sleep $sleep
   clear
 done
