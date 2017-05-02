@@ -39,6 +39,7 @@
 #http://stackoverflow.com/questions/5947742/how-to-change-the-output-color-of-echo-in-linux
 
 #User variables, change to suit your system
+version='1.1.0'
 motioncor2exe=motioncor2
 gctfexe=gctf-v1.06
 gautoexe=gautomatch
@@ -55,6 +56,7 @@ echo ""
 echo "##########################################################################"
 echo -e "\033[1;34mRealtime preprocessing script for K2 data from Bacem Titan Krios\033[m"
 echo -e "\033[1;34mAuthor: Kyle L Morris @ Hurley lab, UC Berkeley\033[m"
+echo -e "\033[1;34mVersion: ${version}\033[m"
 echo "##########################################################################"
 echo -e "\033[1;37m"
 echo "This script will look for new movies in the current working directory (cwd)."
@@ -62,7 +64,7 @@ echo "To avoid unexpected behaviour, ensure the cwd contains only incoming k2 mo
 echo ""
 echo "When identified, preprocessing will be performed on them."
 echo ""
-echo "Preprocessing currently includes: motioncor2, gctf, gautomatch"
+echo "Preprocessing currently includes: motioncor2, gautomatch and gctf"
 echo "*** realtime 2D averaging in development ***"
 echo -e "\033[m"
 echo "Notes:"
@@ -129,10 +131,10 @@ elif [[ $readsettings == 0 ]] ; then
   echo "Note that the executable, input, output and log file will be setup for you..."
   echo ''
   echo "Rapid whole frame alignment, 38 frames in ~30 sec on 3 gpu:"
-  echo "-FtBin 2.0 -PixSize 0.573 -Bft 150 -kV 300 -FmDose 1.426 -Throw 2 -Gpu 0 1 2 3"
+  echo "-FtBin 2.0 -PixSize 0.535 -Bft 150 -kV 300 -FmDose 1.633 -Throw 2 -Gpu 0 1 2 3"
   echo ''
   echo "Thorough patch based alignment for final refinements, 38 frames in ~120 sec on 4 gpus:"
-  echo "-FtBin 2.0 -PixSize 0.573 -Bft 150 -kV 300 -FmDose 1.426 -Throw 2 -Patch 5 5 -Iter 10 -Tol 0.5 -Gpu 0 1 2 3"
+  echo "-FtBin 2.0 -PixSize 0.535 -Bft 150 -kV 300 -FmDose 1.633 -Throw 2 -Patch 5 5 -Iter 10 -Tol 0.5 -Gpu 0 1 2 3"
   echo ''
   read p
   cor2opt=$p
@@ -141,27 +143,27 @@ elif [[ $readsettings == 0 ]] ; then
   echo "##########################################################################"
   echo ''
 
-  echo "Enter your gctf command options:"
-  echo "Note that the executable, input, output, EPA & validation will be setup for you..."
-  echo ''
-  echo "Suggested options:"
-  echo "--apix 1.145 --kV 300 --Cs 2.6 --ac 0.1 --resH 3"
-  echo ''
-  read p
-  gctfopt=$p
-  echo 'gctfopt: '$p >> .sniffsettings
-  echo ''
-  echo "##########################################################################"
-  echo ''
-
   echo "Enter your gautomatch command options:"
   echo ''
   echo "Suggested options good for a somewhat compact 280 A complex:"
-  echo "--apixM 1.145 --diameter 250 --speed 2 --lp 35"
+  echo "--apixM 1.070 --diameter 250 --speed 2 --lp 35"
   echo ''
   read p
   gautoopt=$p
   echo 'gautoopt: '$p >> .sniffsettings
+  echo ''
+  echo "##########################################################################"
+  echo ''
+
+  echo "Enter your gctf command options:"
+  echo "Note that the executable, input, output, EPA & validation will be setup for you..."
+  echo ''
+  echo "Suggested options:"
+  echo "--apix 1.070 --kV 300 --Cs 2.6 --ac 0.1 --resH 2.3 --resL 15 --do_local_refine --box_suffix _automatch.star"
+  echo ''
+  read p
+  gctfopt=$p
+  echo 'gctfopt: '$p >> .sniffsettings
   echo ''
   echo "##########################################################################"
   echo ''
@@ -206,11 +208,11 @@ echo ''
 echo 'Example motioncor2 command will be as follows:'
 echo "$ ${motioncor2exe} ${incom} example.${ext} -OutMrc example.mrc ${cor2opt} > example_cor2.log"
 echo ''
-echo 'Example gctf command will be as follows:'
-echo "$ ${gctfexe} ${gctfopt} example.mrc --do_EPA --do_validation > example_gctf.log"
-echo ''
 echo 'Example gautomatch command will be as follows:'
 echo "$ ${gautoexe} ${gautoopt} example.mrc > example_gauto.log"
+echo ''
+echo 'Example gctf command will be as follows:'
+echo "$ ${gctfexe} ${gctfopt} example.mrc --do_EPA --do_validation > example_gctf.log"
 echo ''
 echo 'Example relion_display command will be as follows:'
 echo "$ relion_display ${displayopt} --pick --coords example_gautomatch.star --i example.mrc &"
@@ -239,6 +241,7 @@ do
   echo -e "\e[92m===============================================================================\e[0m"
   echo 'Realtime K2 preprocessing'
   echo 'Kyle Morris @ Hurley Lab, UCB'
+  echo 'Version:' ${version}
   echo -e "\e[92m===============================================================================\e[0m"
   echo $(date -u)
   echo -e "\e[92m===============================================================================\e[0m"
@@ -296,6 +299,9 @@ do
   echo 'Working on file:' ${file}
   echo -e "\e[92m===============================================================================\e[0m"
 
+  ####################################################################################
+  #File size check if file is currently incoming
+  ####################################################################################
   if [[ -z $file ]] ; then
     echo 'Nothing in queue to work on...'
     echo ''
@@ -322,61 +328,104 @@ do
     done
     echo -e "\e[92m===============================================================================\e[0m"
 
-    #rsync file transfer with rename
-    #rsync -aP ${file} ${dir2}/${newfile}
-
+    ####################################################################################
     #Run motioncor2
-    echo ''
-    echo 'Running motioncor2...'
-    echo ''
-    echo "$ ""${motioncor2exe} ${incom} ${file} -OutMrc ${newfile} ${cor2opt} > $cor2log"
-    echo ''
-    echo "Output is redirected to the log file ${cor2log}"
-    echo ''
-    echo "Be patient, or check the log file with following command if you must...."
-    echo ''
-    echo "$ tail -f ${cor2log}"
-    echo ''
+    ####################################################################################
+    if [[ -z $cor2opt ]] ; then
+      echo ""
+      echo "No motioncor2 options, skipping motion correction..."
+      echo ""
+    else
+      echo ''
+      echo "Running ${cor2exe}..."
+      echo ''
+      echo "$ ""${motioncor2exe} ${incom} ${file} -OutMrc ${newfile} ${cor2opt} > $cor2log"
+      echo ''
+      echo "Output is redirected to the log file ${cor2log}"
+      echo ''
+      echo "Be patient, or check the log file with following command if you must...."
+      echo ''
+      echo "$ tail -f ${cor2log}"
+      echo ''
 
-    ${motioncor2exe} ${incom} ${file} -OutMrc ${newfile} ${cor2opt} > $cor2log
+      ${motioncor2exe} ${incom} ${file} -OutMrc ${newfile} ${cor2opt} > $cor2log
 
-    echo -e "\e[92m===============================================================\e[0m"
-    echo 'Done processing with motioncor2...'
-    echo -e "\e[92m===============================================================\e[0m"
-    grep -A 5 'Create aligned sum based upon full frame alignment.' $cor2log
-    echo ''
-    echo 'Creating quick look jpeg using imod mrc2tif...'
+      echo -e "\e[92m===============================================================\e[0m"
+      echo 'Done processing with motioncor2...'
+      echo -e "\e[92m===============================================================\e[0m"
+      grep -A 5 'Create aligned sum based upon full frame alignment.' $cor2log
+      echo ''
+      echo 'Creating quick look jpeg using imod mrc2tif...'
 
-    #Uses imod mrc2tif package for quick look jpg
-    mrc2tif -j ${newfile} ${micjpg}
+      #Uses imod mrc2tif package for quick look jpg
+      mrc2tif -j ${newfile} ${micjpg}
 
-    echo -e "\e[92m===============================================================\e[0m"
-    echo ''
-    #echo 'Taking a breather for 2 seconds...'
-    #echo ''
-    #sleep 2
+      echo -e "\e[92m===============================================================\e[0m"
+      echo ''
+      #echo 'Taking a breather for 2 seconds...'
+      #echo ''
+      #sleep 2
+    fi
 
+    ####################################################################################
+    #Run gautomatch - automatch run first so coorindtaes available for local ctf estimation
+    ####################################################################################
+    if [[ -z $gautoopt ]] ; then
+      echo ""
+      echo "No gautomatch options, skipping particle picking..."
+      echo ""
+    else
+      echo ''
+      echo "Running ${gautoexe}..."
+      echo ''
+      echo "$ ""${gautoexe} ${gautoopt} ${newfile} > ${gautolog}"
+      echo ''
+
+      ${gautoexe} ${gautoopt} ${newfile} > ${gautolog}
+
+      echo -e "\e[92m===============================================================\e[0m"
+      echo 'Done processing with gautomatch...'
+      echo -e "\e[92m===============================================================\e[0m"
+      echo ''
+      #Report and store values
+      echo '# of gautomatch particle picks:'
+      ptclno=$(wc -l $gautostar | awk '{print $1}')
+      echo $ptclno
+      echo ''
+    fi
+
+    ####################################################################################
     #Run gctf
-    echo -e "\e[92m===============================================================\e[0m"
-    echo 'Working on file:' ${newfile}
-    echo -e "\e[92m===============================================================\e[0m"
+    ####################################################################################
+    if [[ -z $gctfopt ]] ; then
+      echo ""
+      echo "No gctf options, skipping ctf estimation..."
+      echo ""
+    else
+      echo -e "\e[92m===============================================================\e[0m"
+      echo 'Working on file:' ${newfile}
+      echo -e "\e[92m===============================================================\e[0m"
 
-    echo ''
-    echo 'Running gctf-v0.50...'
-    echo ''
-    echo "$ ""${gctfexe} ${gctfopt} ${newfile} --do_EPA --do_validation > gctf.log"
-    echo ''
+      echo ''
+      echo "Running ${gctfexe}..."
+      echo ''
+      echo "$ ""${gctfexe} ${gctfopt} ${newfile} --do_EPA --do_validation > gctf.log"
+      echo ''
 
-    ${gctfexe} ${gctfopt} ${newfile} --do_EPA --do_validation > gctf.log
+      ${gctfexe} ${gctfopt} ${newfile} --do_EPA --do_validation > gctf.log
 
-    #Kill display for next round
-    killall relion_display
+      #Kill display for next round
+      killall relion_display
 
-    echo -e "\e[92m===============================================================\e[0m"
-    echo 'Done processing with gctf...'
-    echo -e "\e[92m===============================================================\e[0m"
-    echo ''
-    #Report and store values
+      echo -e "\e[92m===============================================================\e[0m"
+      echo 'Done processing with gctf...'
+      echo -e "\e[92m===============================================================\e[0m"
+      echo ''
+    fi
+
+    ####################################################################################
+    #Report to terminal and store values in variables
+    ####################################################################################
     echo 'Final ctf values:'
     grep -e Final gctf.log
     defocus=$(grep -e Final gctf.log | awk '{print $1,$2,$3}')
@@ -395,25 +444,9 @@ do
     #echo ''
     #sleep 2
 
-    #Run gautomatch
-    echo ''
-    echo 'Running gautomatch...'
-    echo ''
-    echo "$ ""${gautoexe} ${gautoopt} ${newfile} > ${gautolog}"
-    echo ''
-
-    ${gautoexe} ${gautoopt} ${newfile} > ${gautolog}
-
-    echo -e "\e[92m===============================================================\e[0m"
-    echo 'Done processing with gautomatch...'
-    echo -e "\e[92m===============================================================\e[0m"
-    echo ''
-    #Report and store values
-    echo '# of gautomatch particle picks:'
-    ptclno=$(wc -l $gautostar | awk '{print $1}')
-    echo $ptclno
-    echo ''
-
+    ####################################################################################
+    #Display results on screen
+    ####################################################################################
     if [[ -z $displayopt ]] ; then
       echo ""
       echo "Not displaying output sum and ctf..."
@@ -421,7 +454,7 @@ do
     else
       #Display micrograph and particle picks with relion display
       echo ''
-      echo 'Displaying micrograph and particle picks using Relion-2.0...'
+      echo "Displaying micrograph and particle picks using relion_display..."
       echo ''
       echo "$ ""relion_display ${displayopt} --pick --coords ${gautostar} --i ${newfile} &"
       echo ''
@@ -437,12 +470,9 @@ do
       relion_display --i ${ctfmrc} --scale 0.5 &
     fi
 
-    echo -e "\e[92m===============================================================\e[0m"
-    echo 'Done processing with gautomatch...'
-    echo -e "\e[92m===============================================================\e[0m"
-    echo ''
-
-    #Mark file in .processed.dat as processed
+    ####################################################################################
+    #Mark file in .processed.dat as processed, populate log file with useful values
+    ####################################################################################
     echo ${file} >> .processed.dat
     #Write summary log
     echo ${newfile} >> $preprocesslog
