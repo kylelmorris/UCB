@@ -25,7 +25,6 @@
 
 # 1 - make file listing more robust
 # 2 - See make_gctf_mic_star.com for making star file at end
-# 3 - local ctf estimation???
 #
 #
 
@@ -53,7 +52,7 @@ echo '' > .processed.dat
 
 #Useful information
 echo ""
-echo "##########################################################################"
+echo -e "\e[0mm##########################################################################"
 echo -e "\033[1;34mRealtime preprocessing script for K2 data from Bacem Titan Krios\033[m"
 echo -e "\033[1;34mAuthor: Kyle L Morris @ Hurley lab, UC Berkeley\033[m"
 echo -e "\033[1;34mVersion: ${version}\033[m"
@@ -268,12 +267,12 @@ do
   #echo 'To check gctf estimation values, in a new terminal run:'
   #echo 'grep -e Final -e "Resolution limit" *gctf.log'
   #echo ''
-  echo -e "\e[92m===============================================================\e[0m"
+  echo -e "\e[92m===============================================================================\e[0m"
   echo "Previous file:               ${name}"
-  echo -e "\e[92m===============================================================\e[0m"
+  echo -e "\e[92m===============================================================================\e[0m"
   echo "Defocus estimation:          ${defocus}"
   echo "Defocus res limit est:       ${reslimit}"
-  echo "Defocus validation:          ${ctfvalidation}"
+  echo "Defocus validation:         "${ctfvalidation}
   echo ''
   echo "Particles picked:            ${ptclno}"
   echo ""
@@ -342,17 +341,15 @@ do
       echo "$ ""${motioncor2exe} ${incom} ${file} -OutMrc ${newfile} ${cor2opt} > $cor2log"
       echo ''
       echo "Output is redirected to the log file ${cor2log}"
-      echo ''
       echo "Be patient, or check the log file with following command if you must...."
-      echo ''
       echo "$ tail -f ${cor2log}"
       echo ''
 
       ${motioncor2exe} ${incom} ${file} -OutMrc ${newfile} ${cor2opt} > $cor2log
 
-      echo -e "\e[92m===============================================================\e[0m"
+      echo -e "\e[92m===============================================================================\e[0m"
       echo 'Done processing with motioncor2...'
-      echo -e "\e[92m===============================================================\e[0m"
+      echo -e "\e[92m===============================================================================\e[0m"
       grep -A 5 'Create aligned sum based upon full frame alignment.' $cor2log
       echo ''
       echo 'Creating quick look jpeg using imod mrc2tif...'
@@ -360,7 +357,7 @@ do
       #Uses imod mrc2tif package for quick look jpg
       mrc2tif -j ${newfile} ${micjpg}
 
-      echo -e "\e[92m===============================================================\e[0m"
+      echo -e "\e[92m===============================================================================\e[0m"
       echo ''
       #echo 'Taking a breather for 2 seconds...'
       #echo ''
@@ -382,9 +379,9 @@ do
 
       ${gautoexe} ${gautoopt} ${newfile} > ${gautolog}
 
-      echo -e "\e[92m===============================================================\e[0m"
+      echo -e "\e[92m===============================================================================\e[0m"
       echo 'Done processing with gautomatch...'
-      echo -e "\e[92m===============================================================\e[0m"
+      echo -e "\e[92m===============================================================================\e[0m"
       echo ''
     fi
 
@@ -400,9 +397,9 @@ do
       echo "No gctf options, skipping ctf estimation..."
       echo ""
     else
-      echo -e "\e[92m===============================================================\e[0m"
+      echo -e "\e[92m===============================================================================\e[0m"
       echo 'Working on file:' ${newfile}
-      echo -e "\e[92m===============================================================\e[0m"
+      echo -e "\e[92m===============================================================================\e[0m"
 
       echo ''
       echo "Running ${gctfexe}..."
@@ -415,9 +412,9 @@ do
       #Kill display for next round
       killall relion_display
 
-      echo -e "\e[92m===============================================================\e[0m"
+      echo -e "\e[92m===============================================================================\e[0m"
       echo 'Done processing with gctf...'
-      echo -e "\e[92m===============================================================\e[0m"
+      echo -e "\e[92m===============================================================================\e[0m"
       echo ''
     fi
 
@@ -436,7 +433,7 @@ do
     #Uses imod mrc2tif package for quick look jpg
     mrc2tif -j ${ctffile} ${ctfjpg}
 
-    echo -e "\e[92m===============================================================\e[0m"
+    echo -e "\e[92m===============================================================================\e[0m"
     echo ''
 
     ####################################################################################
@@ -465,9 +462,9 @@ do
       relion_display --i ${ctfmrc} --scale 0.5 &
     fi
 
-    echo -e "\e[92m===============================================================\e[0m"
+    echo -e "\e[92m===============================================================================\e[0m"
     echo 'Done processing with gautomatch...'
-    echo -e "\e[92m===============================================================\e[0m"
+    echo -e "\e[92m===============================================================================\e[0m"
     echo ''
 
     ####################################################################################
@@ -490,7 +487,7 @@ do
     echo "Micrograph:      ${newfile}" >> $preprocesslog
     echo "Final defocus:   ${defocus}" >> $preprocesslog
     echo "Res limit:       ${reslimit}" >> $preprocesslog
-    echo "CTF validation:  ${ctfvalidation}" >> $preprocesslog
+    echo "CTF validation: "${ctfvalidation} >> $preprocesslog
     echo "Particles:       ${ptclno}" >> $preprocesslog
     echo "Processing time: ${runtime} (seconds)" >> $preprocesslog
 
