@@ -359,9 +359,10 @@ do
 
       ${motioncor2exe} ${incom} ${file} -OutMrc ${newfile} ${cor2opt} > $cor2log
 
-      echo "Full frame alignment successful (see below):"
-      grep "Full-frame" $cor2log
-      echo "Patch alignment successful (see below):"
+      echo "Full frame alignment log (see below):"
+      grep -A 1 "Full-frame shifts" $cor2log
+      echo ""
+      echo "Patch alignment log (see below):"
       grep "Total Iterations" $cor2log
       echo ""
 
