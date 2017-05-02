@@ -359,10 +359,15 @@ do
 
       ${motioncor2exe} ${incom} ${file} -OutMrc ${newfile} ${cor2opt} > $cor2log
 
+      echo "Full frame alignment successful (see below):"
+      grep "Full-frame" $cor2log
+      echo "Patch alignment successful (see below):"
+      grep "Total Iterations" $cor2log
+      echo ""
+
       echo -e "\e[92m===============================================================================\e[0m"
       echo 'Done processing with motioncor2...'
       echo -e "\e[92m===============================================================================\e[0m"
-      grep -A 5 'Create aligned sum based upon full frame alignment.' $cor2log
       echo ''
       echo 'Creating quick look jpeg using imod mrc2tif...'
 
@@ -371,9 +376,6 @@ do
 
       echo -e "\e[92m===============================================================================\e[0m"
       echo ''
-      #echo 'Taking a breather for 2 seconds...'
-      #echo ''
-      #sleep 2
     fi
 
     ####################################################################################
@@ -442,11 +444,13 @@ do
     ctfvalidation=$(grep -A 6 'Differences from Original Values' gctf.log | tail -n 5 | awk '{print $1,$6}')
     echo 'Creating quick look jpeg using imod mrc2tif...'
 
-    #if local ctf estimation is performed print local estimations to terminal
-    cat $gautolocalstar
-
     #Uses imod mrc2tif package for quick look jpg
     mrc2tif -j ${ctffile} ${ctfjpg}
+
+    #if local ctf estimation is performed print local estimations to terminal
+    echo "Local gctf estimation to follow:"
+    echo ""
+    cat $gautolocalstar
 
     echo -e "\e[92m===============================================================================\e[0m"
     echo ''
