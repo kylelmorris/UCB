@@ -39,7 +39,7 @@
 #http://stackoverflow.com/questions/5947742/how-to-change-the-output-color-of-echo-in-linux
 
 #User variables, change to suit your system
-version='1.1.0'
+version='1.1.1'
 motioncor2exe=motioncor2
 gctfexe=gctf-v1.06
 gautoexe=gautomatch
@@ -64,7 +64,7 @@ echo "To avoid unexpected behaviour, ensure the cwd contains only incoming k2 mo
 echo ""
 echo "When identified, preprocessing will be performed on them."
 echo ""
-echo "Preprocessing currently includes: motioncor2, gautomatch and gctf"
+echo "Preprocessing currently includes: motioncor2, gctf, gautomatch"
 echo "*** realtime 2D averaging in development ***"
 echo -e "\033[m"
 echo "Notes:"
@@ -131,10 +131,10 @@ elif [[ $readsettings == 0 ]] ; then
   echo "Note that the executable, input, output and log file will be setup for you..."
   echo ''
   echo "Rapid whole frame alignment, 38 frames in ~30 sec on 3 gpu:"
-  echo "-FtBin 2.0 -PixSize 0.535 -Bft 150 -kV 300 -FmDose 1.633 -Throw 2 -Gpu 0 1 2 3"
+  echo "-FtBin 2.0 -PixSize 0.573 -Bft 150 -kV 300 -FmDose 1.426 -Throw 2 -Gpu 0 1 2 3"
   echo ''
   echo "Thorough patch based alignment for final refinements, 38 frames in ~120 sec on 4 gpus:"
-  echo "-FtBin 2.0 -PixSize 0.535 -Bft 150 -kV 300 -FmDose 1.633 -Throw 2 -Patch 5 5 -Iter 10 -Tol 0.5 -Gpu 0 1 2 3"
+  echo "-FtBin 2.0 -PixSize 0.573 -Bft 150 -kV 300 -FmDose 1.426 -Throw 2 -Patch 5 5 -Iter 10 -Tol 0.5 -Gpu 0 1 2 3"
   echo ''
   read p
   cor2opt=$p
@@ -146,7 +146,7 @@ elif [[ $readsettings == 0 ]] ; then
   echo "Enter your gautomatch command options:"
   echo ''
   echo "Suggested options good for a somewhat compact 280 A complex:"
-  echo "--apixM 1.070 --diameter 250 --speed 2 --lp 35"
+  echo "--apixM 1.145 --diameter 250 --speed 2 --lp 35"
   echo ''
   read p
   gautoopt=$p
@@ -159,7 +159,7 @@ elif [[ $readsettings == 0 ]] ; then
   echo "Note that the executable, input, output, EPA & validation will be setup for you..."
   echo ''
   echo "Suggested options:"
-  echo "--apix 1.070 --kV 300 --Cs 2.6 --ac 0.1 --resH 2.3 --resL 15 --do_local_refine --box_suffix _automatch.star"
+  echo "--apix 1.145 --kV 300 --Cs 2.6 --ac 0.1 --resH 2.3 --resL 15"
   echo ''
   read p
   gctfopt=$p
@@ -167,6 +167,7 @@ elif [[ $readsettings == 0 ]] ; then
   echo ''
   echo "##########################################################################"
   echo ''
+
 
   echo "Enter your relion display options:"
   echo "Note that the executable, input, output, coordinates will be setup for you..."
@@ -261,6 +262,7 @@ do
   #Queue statistics
   queueno=$(wc -l .queue.dat | awk '{print $1}')
   processedno=$(wc -l .processed.dat | awk '{print $1}')
+  echo 'Number of files found:     '$(ls ./*${ext} | wc -l | awk '{print $1}')
   echo 'Number of files in queue:  '$queueno
   echo 'Number of files processed: '$processedno
   #echo 'To check gctf estimation values, in a new terminal run:'
@@ -271,8 +273,7 @@ do
   echo -e "\e[92m===============================================================\e[0m"
   echo "Defocus estimation:          ${defocus}"
   echo "Defocus res limit est:       ${reslimit}"
-  echo "Defocus validation:"
-  echo $ctfvalidation
+  echo "Defocus validation:          ${ctfvalidation}"
   echo ''
   echo "Particles picked:            ${ptclno}"
   echo ""
@@ -296,7 +297,7 @@ do
   preprocesslog=$name'_preprocess.log'
 
   echo -e "\e[92m===============================================================================\e[0m"
-  echo 'Working on file:' ${file}
+  echo 'Current file:' ${file}
   echo -e "\e[92m===============================================================================\e[0m"
 
   ####################################################################################
@@ -332,12 +333,11 @@ do
     #Run motioncor2
     ####################################################################################
     if [[ -z $cor2opt ]] ; then
-      echo ""
       echo "No motioncor2 options, skipping motion correction..."
       echo ""
     else
       echo ''
-      echo "Running ${cor2exe}..."
+      echo "Running ${motioncor2exe}..."
       echo ''
       echo "$ ""${motioncor2exe} ${incom} ${file} -OutMrc ${newfile} ${cor2opt} > $cor2log"
       echo ''
@@ -371,7 +371,6 @@ do
     #Run gautomatch - automatch run first so coorindtaes available for local ctf estimation
     ####################################################################################
     if [[ -z $gautoopt ]] ; then
-      echo ""
       echo "No gautomatch options, skipping particle picking..."
       echo ""
     else
@@ -387,18 +386,17 @@ do
       echo 'Done processing with gautomatch...'
       echo -e "\e[92m===============================================================\e[0m"
       echo ''
-      #Report and store values
-      echo '# of gautomatch particle picks:'
-      ptclno=$(wc -l $gautostar | awk '{print $1}')
-      echo $ptclno
-      echo ''
     fi
+
+    #Report and store values
+    ptclno=$(wc -l $gautostar | awk '{print $1}')
+    echo '# of gautomatch particle picks:' $ptclno
+    echo ''
 
     ####################################################################################
     #Run gctf
     ####################################################################################
     if [[ -z $gctfopt ]] ; then
-      echo ""
       echo "No gctf options, skipping ctf estimation..."
       echo ""
     else
@@ -440,9 +438,6 @@ do
 
     echo -e "\e[92m===============================================================\e[0m"
     echo ''
-    #echo 'Taking a breather for 2 seconds...'
-    #echo ''
-    #sleep 2
 
     ####################################################################################
     #Display results on screen
@@ -470,17 +465,15 @@ do
       relion_display --i ${ctfmrc} --scale 0.5 &
     fi
 
+    echo -e "\e[92m===============================================================\e[0m"
+    echo 'Done processing with gautomatch...'
+    echo -e "\e[92m===============================================================\e[0m"
+    echo ''
+
     ####################################################################################
     #Mark file in .processed.dat as processed, populate log file with useful values
     ####################################################################################
     echo ${file} >> .processed.dat
-    #Write summary log
-    echo ${newfile} >> $preprocesslog
-    echo ${defocus} >> $preprocesslog
-    echo ${reslimit} >> $preprocesslog
-    echo ${ctfvalidation} >> $preprocesslog
-    echo ${ptclno} >> $preprocesslog
-    echo "${runtime} (seconds)" >> $preprocesslog
 
     #Reset file name variable
     file=$(echo '')
@@ -492,6 +485,14 @@ do
     runtime=$((end-start))
     echo "Processing time was: ${runtime} (seconds)"
     echo ''
+
+    #Write summary log
+    echo "Micrograph:      ${newfile}" >> $preprocesslog
+    echo "Final defocus:   ${defocus}" >> $preprocesslog
+    echo "Res limit:       ${reslimit}" >> $preprocesslog
+    echo "CTF validation:  ${ctfvalidation}" >> $preprocesslog
+    echo "Particles:       ${ptclno}" >> $preprocesslog
+    echo "Processing time: ${runtime} (seconds)" >> $preprocesslog
 
   fi
   clear
