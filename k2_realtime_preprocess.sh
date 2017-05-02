@@ -304,6 +304,7 @@ do
   gctflog=$name'_cor2_gctf.log'
   gautolog=$name'_cor2_gauto.log'
   gautostar=$name'_cor2_automatch.star'
+  gautolocalstar=$name'_cor2_local.star'
   preprocesslog=$name'_preprocess.log'
 
   echo -e "\e[92m===============================================================================\e[0m"
@@ -440,6 +441,9 @@ do
     grep -A 6 'Differences from Original Values' gctf.log
     ctfvalidation=$(grep -A 6 'Differences from Original Values' gctf.log | tail -n 5 | awk '{print $1,$6}')
     echo 'Creating quick look jpeg using imod mrc2tif...'
+
+    #if local ctf estimation is performed print local estimations to terminal
+    cat $gautolocalstar
 
     #Uses imod mrc2tif package for quick look jpg
     mrc2tif -j ${ctffile} ${ctfjpg}
