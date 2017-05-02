@@ -38,7 +38,7 @@
 #http://stackoverflow.com/questions/5947742/how-to-change-the-output-color-of-echo-in-linux
 
 #User variables, change to suit your system
-version='1.1.1'
+version='1.1.2'
 motioncor2exe=motioncor2
 gctfexe=gctf-v1.06
 gautoexe=gautomatch
@@ -50,7 +50,9 @@ rm -rf .tmp.dat
 rm -rf .processed.dat
 echo '' > .processed.dat
 
+####################################################################################
 #Useful information
+####################################################################################
 echo ""
 echo -e "\033[0;35m##########################################################################\033[m"
 echo -e "\033[1;34mRealtime preprocessing script for K2 data from Bacem Titan Krios\033[m"
@@ -79,7 +81,9 @@ echo ""
 echo 'Press Enter to continue...'
 read p
 
-#Look for previous settings and ask whether to sue these
+####################################################################################
+#Look for previous settings and ask whether to use these
+####################################################################################
 if [[ -e .sniffsettings ]] ; then
   echo 'Previous settings found in current working directory...'
   echo ''
@@ -166,7 +170,6 @@ elif [[ $readsettings == 0 ]] ; then
   echo ''
   echo -e "\033[0;35m##########################################################################\033[m"
   echo ''
-
 
   echo "Enter your relion display options:"
   echo "Note that the executable, input, output, coordinates will be setup for you..."
@@ -258,6 +261,10 @@ do
   #awk 'NR==FNR{a[$0];next} !($0 in a)' .processed.dat .tmp.dat > .queue.dat
   comm -2 -3 <(sort .tmp.dat) <(sort .processed.dat) > .queue.dat
 
+  ####################################################################################
+  #Queue control and reporting
+  ####################################################################################
+
   #Queue statistics
   queueno=$(wc -l .queue.dat | awk '{print $1}')
   processedno=$(wc -l .processed.dat | awk '{print $1}')
@@ -272,7 +279,7 @@ do
   echo -e "\e[92m===============================================================================\e[0m"
   echo "Defocus estimation:          ${defocus}"
   echo "Defocus res limit est:       ${reslimit}"
-  echo "Defocus validation:         "${ctfvalidation}
+  echo "Defocus validation:          "${ctfvalidation}
   echo ''
   echo "Particles picked:            ${ptclno}"
   echo ""
@@ -280,6 +287,10 @@ do
   echo ''
   ptcltot=$(wc -l *automatch.star | tail -n 1 | awk '{print $1}')
   echo "Particles picked, total:     ${ptcltot}"
+
+  ####################################################################################
+  #File name variable setup
+  ####################################################################################
 
   #Work on oldest file in queue and check off on done list
   file=$(sed -n 1p .queue.dat)
