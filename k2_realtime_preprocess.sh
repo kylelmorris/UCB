@@ -52,11 +52,11 @@ echo '' > .processed.dat
 
 #Useful information
 echo ""
-echo -e "\e[0mm##########################################################################"
+echo -e "\033[0;35m##########################################################################\033[m"
 echo -e "\033[1;34mRealtime preprocessing script for K2 data from Bacem Titan Krios\033[m"
 echo -e "\033[1;34mAuthor: Kyle L Morris @ Hurley lab, UC Berkeley\033[m"
 echo -e "\033[1;34mVersion: ${version}\033[m"
-echo "##########################################################################"
+echo -e "\033[0;35m##########################################################################\033[m"
 echo -e "\033[1;37m"
 echo "This script will look for new movies in the current working directory (cwd)."
 echo "To avoid unexpected behaviour, ensure the cwd contains only incoming k2 movies."
@@ -74,7 +74,7 @@ echo ""
 echo "Dependancies:"
 echo "motioncor2, gctf-v1.06, gautomatch, Relion-2.0"
 echo ""
-echo "##########################################################################"
+echo -e "\033[0;35m##########################################################################\033[m"
 echo ""
 echo 'Press Enter to continue...'
 read p
@@ -113,9 +113,9 @@ if [[ $readsettings == 1 ]] ; then
 elif [[ $readsettings == 0 ]] ; then
   rm -rf .sniffsettings
 
-  echo "##########################################################################"
+  echo -e "\033[0;35m##########################################################################\033[m"
   echo "User input..."
-  echo "##########################################################################"
+  echo -e "\033[0;35m##########################################################################\033[m"
   echo ""
   echo "Enter file suffix and extension for new movies (i.e. ".tif", "_frames.tif" or ".mrcs"):"
   echo ''
@@ -123,7 +123,7 @@ elif [[ $readsettings == 0 ]] ; then
   ext=$p
   echo 'ext:     '$p >> .sniffsettings
   echo ''
-  echo "##########################################################################"
+  echo -e "\033[0;35m##########################################################################\033[m"
   echo ''
 
   echo "Enter your motioncor2 command options:"
@@ -139,7 +139,7 @@ elif [[ $readsettings == 0 ]] ; then
   cor2opt=$p
   echo 'cor2opt: '$p >> .sniffsettings
   echo ''
-  echo "##########################################################################"
+  echo -e "\033[0;35m##########################################################################\033[m"
   echo ''
 
   echo "Enter your gautomatch command options:"
@@ -151,7 +151,7 @@ elif [[ $readsettings == 0 ]] ; then
   gautoopt=$p
   echo 'gautoopt: '$p >> .sniffsettings
   echo ''
-  echo "##########################################################################"
+  echo -e "\033[0;35m##########################################################################\033[m"
   echo ''
 
   echo "Enter your gctf command options:"
@@ -164,7 +164,7 @@ elif [[ $readsettings == 0 ]] ; then
   gctfopt=$p
   echo 'gctfopt: '$p >> .sniffsettings
   echo ''
-  echo "##########################################################################"
+  echo -e "\033[0;35m##########################################################################\033[m"
   echo ''
 
 
@@ -178,7 +178,7 @@ elif [[ $readsettings == 0 ]] ; then
   displayopt=$p
   echo 'displayopt: '$p >> .sniffsettings
   echo ''
-  echo "##########################################################################"
+  echo -e "\033[0;35m##########################################################################\033[m"
   echo ''
 fi
 
@@ -199,9 +199,9 @@ elif [[ $inext == T ]] ; then
   incom='--InMrc'
 fi
 
-echo "##########################################################################"
+echo -e "\033[0;35m##########################################################################\033[m"
 echo "Completed user input..."
-echo "##########################################################################"
+echo -e "\033[0;35m##########################################################################\033[m"
 echo ''
 
 #Show the user an example command and ask to continue
