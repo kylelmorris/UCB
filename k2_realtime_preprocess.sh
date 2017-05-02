@@ -487,7 +487,7 @@ do
     echo "Micrograph:      ${newfile}" >> $preprocesslog
     echo "Final defocus:   ${defocus}" >> $preprocesslog
     echo "Res limit:       ${reslimit}" >> $preprocesslog
-    echo "CTF validation: "${ctfvalidation} >> $preprocesslog
+    echo "CTF validation:  "${ctfvalidation} >> $preprocesslog
     echo "Particles:       ${ptclno}" >> $preprocesslog
     echo "Processing time: ${runtime} (seconds)" >> $preprocesslog
 
