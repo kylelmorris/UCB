@@ -215,7 +215,7 @@ echo 'Example gautomatch command will be as follows:'
 echo "$ ${gautoexe} ${gautoopt} example.mrc > example_gauto.log"
 echo ''
 echo 'Example gctf command will be as follows:'
-echo "$ ${gctfexe} ${gctfopt} example.mrc --do_EPA --do_validation > example_gctf.log"
+echo "$ ${gctfexe} ${gctfopt} example.mrc > example_gctf.log"
 echo ''
 echo 'Example relion_display command will be as follows:'
 echo "$ relion_display ${displayopt} --pick --coords example_gautomatch.star --i example.mrc &"
@@ -419,7 +419,7 @@ do
       echo ''
       echo "Running ${gctfexe}..."
       echo ''
-      echo "$ ""${gctfexe} ${gctfopt} ${newfile} --do_EPA --do_validation > gctf.log"
+      echo "$ ""${gctfexe} ${gctfopt} ${newfile} > gctf.log"
       echo ''
 
       ${gctfexe} ${gctfopt} ${newfile} --do_EPA --do_validation > gctf.log
@@ -431,30 +431,41 @@ do
       echo 'Done processing with gctf...'
       echo -e "\e[92m===============================================================================\e[0m"
       echo ''
+
+      ####################################################################################
+      #Report to terminal and store values in variables
+      ####################################################################################
+      echo 'Final ctf values:'
+      grep -e Final gctf.log
+      defocus=$(grep -e Final gctf.log | awk '{print $1,$2,$3}')
+      echo ""
+      grep -e 'Resolution limit' gctf.log
+      reslimit=$(grep -e 'Resolution limit' gctf.log | awk '{print $7}')
+      echo ""
+      grep -A 6 'Differences from Original Values' gctf.log
+      ctfvalidation=$(grep -A 6 'Differences from Original Values' gctf.log | tail -n 5 | awk '{print $1,$6}')
+      echo ""
+      echo 'Creating quick look jpeg using imod mrc2tif...'
+
+      #Uses imod mrc2tif package for quick look jpg
+      mrc2tif -j ${ctffile} ${ctfjpg}
+
+      #if local ctf estimation is performed print local estimations to terminal
+      echo ""
+      echo "Local gctf estimation to follow:"
+
+      #Sleep to show values
+      sleep 2s
+
+      grep "Local Values" gctf.log
+
+      #Sleep to show values
+      sleep 2s
+
+      echo -e "\e[92m===============================================================================\e[0m"
+      echo ''
+
     fi
-
-    ####################################################################################
-    #Report to terminal and store values in variables
-    ####################################################################################
-    echo 'Final ctf values:'
-    grep -e Final gctf.log
-    defocus=$(grep -e Final gctf.log | awk '{print $1,$2,$3}')
-    grep -e 'Resolution limit' gctf.log
-    reslimit=$(grep -e 'Resolution limit' gctf.log | awk '{print $7}')
-    grep -A 6 'Differences from Original Values' gctf.log
-    ctfvalidation=$(grep -A 6 'Differences from Original Values' gctf.log | tail -n 5 | awk '{print $1,$6}')
-    echo 'Creating quick look jpeg using imod mrc2tif...'
-
-    #Uses imod mrc2tif package for quick look jpg
-    mrc2tif -j ${ctffile} ${ctfjpg}
-
-    #if local ctf estimation is performed print local estimations to terminal
-    echo "Local gctf estimation to follow:"
-    echo ""
-    cat $gautolocalstar
-
-    echo -e "\e[92m===============================================================================\e[0m"
-    echo ''
 
     ####################################################################################
     #Display results on screen
@@ -481,11 +492,6 @@ do
       echo ''
       relion_display --i ${ctfmrc} --scale 0.5 &
     fi
-
-    echo -e "\e[92m===============================================================================\e[0m"
-    echo 'Done processing with gautomatch...'
-    echo -e "\e[92m===============================================================================\e[0m"
-    echo ''
 
     ####################################################################################
     #Mark file in .processed.dat as processed, populate log file with useful values
