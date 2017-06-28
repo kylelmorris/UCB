@@ -38,7 +38,7 @@
 #http://stackoverflow.com/questions/5947742/how-to-change-the-output-color-of-echo-in-linux
 
 #User variables, change to suit your system
-version='1.1.2'
+version='1.1.3'
 motioncor2exe=motioncor2
 gctfexe=gctf-v1.06
 gautoexe=gautomatch
@@ -75,6 +75,11 @@ echo "but you may also find the summary information in this log useful for micro
 echo ""
 echo "Dependancies:"
 echo "motioncor2, gctf-v1.06, gautomatch, Relion-2.0"
+echo ""
+echo "Mag X   apix    superres"
+echo "18,000  1.345   0.673"
+echo "22,500  1.067   0.534"
+echo "29,000  0.837   0.419"
 echo ""
 echo -e "\033[0;35m##########################################################################\033[m"
 echo ""
@@ -134,10 +139,10 @@ elif [[ $readsettings == 0 ]] ; then
   echo "Note that the executable, input, output and log file will be setup for you..."
   echo ''
   echo "Rapid whole frame alignment, 38 frames in ~30 sec on 3 gpu:"
-  echo "-FtBin 2.0 -PixSize 0.573 -Bft 150 -kV 300 -FmDose 1.426 -Throw 2 -Gpu 0 1 2 3"
+  echo "-FtBin 2.0 -PixSize 0.534 -Bft 150 -kV 300 -FmDose 1.643 -Throw 2 -Gpu 0 1 2 3"
   echo ''
   echo "Thorough patch based alignment for final refinements, 38 frames in ~120 sec on 4 gpus:"
-  echo "-FtBin 2.0 -PixSize 0.573 -Bft 150 -kV 300 -FmDose 1.426 -Throw 2 -Patch 5 5 -Iter 10 -Tol 0.5 -Gpu 0 1 2 3"
+  echo "-FtBin 2.0 -PixSize 0.534 -Bft 150 -kV 300 -FmDose 1.643 -Throw 2 -Patch 5 5 -Iter 10 -Tol 0.5 -Gpu 0 1 2 3"
   echo ''
   read p
   cor2opt=$p
@@ -149,7 +154,7 @@ elif [[ $readsettings == 0 ]] ; then
   echo "Enter your gautomatch command options:"
   echo ''
   echo "Suggested options good for a somewhat compact 280 A complex:"
-  echo "--apixM 1.145 --diameter 250 --speed 2 --lp 35"
+  echo "--apixM 1.067 --diameter 250 --speed 2 --lp 35"
   echo ''
   read p
   gautoopt=$p
@@ -162,7 +167,9 @@ elif [[ $readsettings == 0 ]] ; then
   echo "Note that the executable, input, output, EPA & validation will be setup for you..."
   echo ''
   echo "Suggested options:"
-  echo "--apix 1.145 --kV 300 --Cs 2.6 --ac 0.1 --resH 2.3 --resL 15"
+  echo "--apix 1.067 --kV 300 --Cs 2.6 --ac 0.1 --resH 2.3 --resL 15"
+  echo "--apix 1.067 --kV 300 --Cs 2.6 --ac 0.1 --resH 2.3 --resL 15 --phase_shift_L 0.0 --phase_shift_H 180.0 --phase_shift_S 10 --phase_shift_T 1"
+  echo "--apix 1.067 --kV 300 --Cs 2.6 --ac 0.1 --resH 2.3 --resL 15 --do_local_refine --boxsuffix _automatch.star"
   echo ''
   read p
   gctfopt=$p
@@ -175,7 +182,7 @@ elif [[ $readsettings == 0 ]] ; then
   echo "Note that the executable, input, output, coordinates will be setup for you..."
   echo ''
   echo "Suggested options to display micrograph with picked coordinates:"
-  echo "--scale 0.25 --angpix 1.145 --lowpass 35"
+  echo "--scale 0.25 --angpix 1.067 --lowpass 20"
   echo ''
   read p
   displayopt=$p
@@ -278,6 +285,8 @@ do
   echo "Previous file:               ${name}"
   echo -e "\e[92m===============================================================================\e[0m"
   echo "Defocus estimation:          ${defocus}"
+  echo "${col4}:                 ${col4val}"
+  echo "${col5}:                         ${col5val}"
   echo "Defocus res limit est:       ${reslimit}"
   echo "Defocus validation:          "${ctfvalidation}
   echo ''
@@ -358,12 +367,16 @@ do
       echo ''
 
       ${motioncor2exe} ${incom} ${file} -OutMrc ${newfile} ${cor2opt} > $cor2log
+      motioncor2com=$(echo "${motioncor2exe} ${incom} ${file} -OutMrc ${newfile} ${cor2opt} > $cor2log")
 
       echo "Full frame alignment log (see below):"
       grep -A 1 "Full-frame shifts" $cor2log
       echo ""
       echo "Patch alignment log (see below):"
       grep "Total Iterations" $cor2log
+      echo ""
+      grep "Computational time" $cor2log
+      grep "Total time" $cor2log
       echo ""
 
       echo -e "\e[92m===============================================================================\e[0m"
@@ -393,6 +406,7 @@ do
       echo ''
 
       ${gautoexe} ${gautoopt} ${newfile} > ${gautolog}
+      gautocom=$(echo "${gautoexe} ${gautoopt} ${newfile} > ${gautolog}")
 
       echo -e "\e[92m===============================================================================\e[0m"
       echo 'Done processing with gautomatch...'
@@ -423,6 +437,7 @@ do
       echo ''
 
       ${gctfexe} ${gctfopt} ${newfile} --do_EPA --do_validation > gctf.log
+      gctfcom=$(echo "${gctfexe} ${gctfopt} ${newfile} --do_EPA --do_validation > gctf.log")
 
       #Kill display for next round
       killall relion_display
@@ -438,6 +453,15 @@ do
       echo 'Final ctf values:'
       grep -e Final gctf.log
       defocus=$(grep -e Final gctf.log | awk '{print $1,$2,$3}')
+      echo ""
+
+      echo 'CCC & Phase shift:'
+      grep -B 1 -e Final gctf.log
+      col4=$(grep -B 1 -e Final gctf.log | sed -n 1p | awk '{print $4}')
+      col4val=$(grep -B 1 -e Final gctf.log | sed -n 2p | awk '{print $4}')
+      col5=$(grep -B 1 -e Final gctf.log | sed -n 1p | awk '{print $5}')
+      col5val=$(grep -B 1 -e Final gctf.log | sed -n 2p | awk '{print $5}')
+
       echo ""
       grep -e 'Resolution limit' gctf.log
       reslimit=$(grep -e 'Resolution limit' gctf.log | awk '{print $7}')
@@ -512,10 +536,33 @@ do
     #Write summary log
     echo "Micrograph:      ${newfile}" >> $preprocesslog
     echo "Final defocus:   ${defocus}" >> $preprocesslog
+    echo "${col4}:         ${col4val}" >> $preprocesslog
+    echo "${col5}:         ${col5val}" >> $preprocesslog
     echo "Res limit:       ${reslimit}" >> $preprocesslog
     echo "CTF validation:  "${ctfvalidation} >> $preprocesslog
     echo "Particles:       ${ptclno}" >> $preprocesslog
     echo "Processing time: ${runtime} (seconds)" >> $preprocesslog
+    echo "" >> $preprocesslog
+    echo "Motioncor2 summaries:" >> $preprocesslog
+    echo "Full frame alignment log:" >> $preprocesslog
+    grep -A 1 "Full-frame shifts" $cor2log >> $preprocesslog
+    echo "" >> $preprocesslog
+    echo "Patch alignment log:" >> $preprocesslog
+    grep "Total Iterations" $cor2log >> $preprocesslog
+    echo "" >> $preprocesslog
+    grep "Computational time" $cor2log >> $preprocesslog
+    grep "Total time" $cor2log >> $preprocesslog
+    echo "" >> $preprocesslog
+    echo "Commands:" >> $preprocesslog
+    echo "motioncor2:" >> $preprocesslog
+    echo "$ "$motioncor2com >> $preprocesslog
+    echo "" >> $preprocesslog
+    echo "gautomatch:" >> $preprocesslog
+    echo "$ "$gautocom >> $preprocesslog
+    echo "" >> $preprocesslog
+    echo "gctf:" >> $preprocesslog
+    echo "$ "$gctfcom >> $preprocesslog
+    echo "" >> $preprocesslog
 
   fi
   clear
