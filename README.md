@@ -18,6 +18,8 @@ When asked, you enter options for the programs just as you would for standard co
 Stop and start the script and preprocessing will continue right where it left off
 #### Your settings are remembered
 Stop and start the script and you can continue without having to re-enter your program options
+#### Smart sequential file handling
+Movies that are currently being written to disk will not be worked on, k2_realtime_data_transfer.sh will transfer you data on the fly
 
 ## Notes
 
