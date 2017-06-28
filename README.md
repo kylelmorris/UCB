@@ -2,7 +2,7 @@
 
 Scripts useful to specific processes at UC Berkeley
 
-## k2_realtime_preprocess.sh
+### k2_realtime_preprocess.sh
 
 lines 31-34 need to be updated to reflect your local environment
 
@@ -15,7 +15,7 @@ lines 31-34 need to be updated to reflect your local environment
 #### No complicated setup
 If motioncor2, gctf and gautomatch are locally installed then you’re set
 #### No fuss
-If you don’t enter options for a program then the program will simply be skipped
+If you don’t enter options for a program then it will simply be skipped
 #### Familiar set up
 When asked, you enter options for the programs just as you would for standard command line execution
 #### Your preprocessing progress is remembered
