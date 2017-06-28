@@ -2,9 +2,10 @@
 
 Scripts useful to specific processes at UC Berkeley
 
-### k2_realtime_preprocess.sh
+### k2_realtime_preprocess.sh & k2_realtime_data_transfer.sh
 
-lines 31-34 need to be updated to reflect your local environment
+k2_realtime_preprocess.sh:
+lines 42-44 need to be updated to reflect your local environment
 
 ## Features
 
@@ -12,7 +13,7 @@ lines 31-34 need to be updated to reflect your local environment
 
 #### Realtime output to the console and additional log files per movie stack with all the stats you need
 
-#### No complicated setup
+#### No complicated installation
 If motioncor2, gctf and gautomatch are locally installed then you’re set
 #### No fuss
 If you don’t enter options for a program then it will simply be skipped
