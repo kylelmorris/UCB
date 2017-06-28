@@ -2,15 +2,6 @@
 
 Scripts useful to specific processes at UC Berkeley
 
-## Set up
-### k2_realtime_preprocess.sh & k2_realtime_data_transfer.sh
-
-k2_realtime_preprocess.sh:
-lines 42-44 need to be updated to reflect your local environment.
-
-k2_realtime_data_transfer.sh:
-set up ssh-keys from your local machine to the remote host before using
-
 ## Features
 
 #### Realtime motion correction, particle picking, whole micrograph and per particle ctf estimation 
@@ -27,3 +18,19 @@ When asked, you enter options for the programs just as you would for standard co
 Stop and start the script and preprocessing will continue right where it left off
 #### Your settings are remembered
 Stop and start the script and you can continue to without having to re-enter your program options
+
+## Set up
+### k2_realtime_preprocess.sh & k2_realtime_data_transfer.sh
+
+k2_realtime_preprocess.sh:
+lines 42-44 need to be updated to reflect your local environment.
+
+k2_realtime_data_transfer.sh:
+set up ssh-keys from your local machine to the remote host before using
+
+## Requirements
+
+Tested with the following:
+gctf-v1.06
+gautomatch-v0.50
+motioncor2-01-30-2017
