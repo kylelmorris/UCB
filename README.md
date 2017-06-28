@@ -1,6 +1,6 @@
 # UCB
 
-Scripts useful to specific processes at UC Berkeley
+Scripts useful to EM related processes at UC Berkeley
 
 ## Features
 
@@ -18,6 +18,12 @@ When asked, you enter options for the programs just as you would for standard co
 Stop and start the script and preprocessing will continue right where it left off
 #### Your settings are remembered
 Stop and start the script and you can continue without having to re-enter your program options
+
+## Notes
+
+36 frame movies from a K2 in superresolution counting can be completely processed^^ in approximately 120 seconds using 4x GTX 1070.
+
+^^ including full frame and 5x5 patch alignement, particle picking, full frame and per particle ctf estimation without using relion_display at each preprocessing iteration.
 
 ## Set up
 ### k2_realtime_preprocess.sh & k2_realtime_data_transfer.sh
