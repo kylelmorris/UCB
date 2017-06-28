@@ -2,10 +2,13 @@
 
 Scripts useful to specific processes at UC Berkeley
 
+### Set up
 ### k2_realtime_preprocess.sh & k2_realtime_data_transfer.sh
 
 k2_realtime_preprocess.sh:
 lines 42-44 need to be updated to reflect your local environment
+k2_realtime_data_transfer.sh:
+set up ssh-keys from your local machine to the remote host before using
 
 ## Features
 
