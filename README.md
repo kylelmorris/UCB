@@ -1,4 +1,4 @@
-# UCB
+# UCB real-time image processing
 
 Scripts useful to EM related processes at UC Berkeley
 
