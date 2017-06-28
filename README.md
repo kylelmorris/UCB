@@ -2,7 +2,7 @@
 
 Scripts useful to specific processes at UC Berkeley
 
-### Set up
+## Set up
 ### k2_realtime_preprocess.sh & k2_realtime_data_transfer.sh
 
 k2_realtime_preprocess.sh:
