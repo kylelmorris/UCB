@@ -15,11 +15,11 @@ If you don’t enter options for a program then it will simply be skipped
 #### Familiar set up
 When asked, you enter options for the programs just as you would for standard command line execution
 #### Your preprocessing progress is remembered
-Stop and start the script and preprocessing will continue right where it left off
+Stop/start the script and preprocessing will continue right where it left off
 #### Your settings are remembered
-Stop and start the script and you can continue without having to re-enter your program options
+Stop/start the script and you can continue without having to re-enter your program options
 #### Smart sequential file handling
-Movies that are currently being written to disk will not be worked on, k2_realtime_data_transfer.sh will transfer you data on the fly
+k2_realtime_data_transfer.sh will transfer you data on the fly but movies that are currently being written to disk will not be worked
 
 ## Notes
 
