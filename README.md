@@ -19,7 +19,7 @@ Stop/start the script and preprocessing will continue right where it left off
 #### Your settings are remembered
 Stop/start the script and you can continue without having to re-enter your program options
 #### Smart sequential file handling
-k2_realtime_data_transfer.sh will transfer you data on the fly but movies that are currently being written to disk will not be worked
+k2_realtime_data_transfer.sh will transfer you data on the fly but movies that are currently being written to disk will not be worked on
 
 ## Notes
 
