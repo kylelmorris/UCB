@@ -347,6 +347,18 @@ do
         echo 'File size is changing, patiently assumung it is still being written to disk'
       fi
     done
+
+    #fszfinal=$(ls -an ${file} | awk '{print $5}')
+    #if [[ ($fsz1 -lt  30000000) ]]; then
+      #echo 'File size is less than 300 MB (300000000 K), check scope'
+      #echo 'Emailing Dan and Kyle'
+      #echo "tif size less than 150 MB, please check scope" | mail -s "Krios problem - automated message" kylelmorris@berkeley.edu
+      #echo "tif size less than 150 MB, please check scope" | mail -s "Krios problem - automated message" dtoso@berkeley.edu
+      #exit
+    #else
+      #echo 'File size is normal great than 300 MB (300000000 K), continuing'
+    #fi
+
     echo -e "\e[92m===============================================================================\e[0m"
 
     ####################################################################################

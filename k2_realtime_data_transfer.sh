@@ -5,12 +5,16 @@ echo "Constant realtime transfer from Bacem server to local directory"
 echo ""
 echo "Please enter the server and remote directory (i.e. ftpuser5@169.229.244.80:/home/ftpuser5/Kyle/17Apr05/Frames/*)"
 echo "Examples:"
-echo "ftpuser5@169.229.244.80:/home/ftpuser5/Kyle/17Apr05/Frames/*"
-echo "--rsh='ssh -p 1919' kmorris@epeius.qb3.berkeley.edu:/media/kmorris/KLM_8TB_ext4/Krios/17Feb24/Frames/*"
+echo "ftpuser5@bacemnet.qb3.berkeley.edu:/home/ftpuser5/path/to/frames/*"
+echo "--rsh='ssh -p 1919' kmorris@server.qb3.berkeley.edu:/path/to/frames/*"
+echo ""
 read remote
+echo $remote > .k2_realtime_data_transfer_remote
 echo ""
 echo "Please enter the local directory (i.e. .)"
+echo ""
 read localdir
+echo $localdir > .k2_realtime_data_transfer_local
 echo ""
 echo "Remote directory: ${remote}"
 echo "Local directory: ${local}"
