@@ -8,7 +8,7 @@ k2_realtime_postprocess.sh - Useful for working from already motion corrected K2
 k2_realtime_manualpick.sh - Useful for inspecting mics and picks during real time processing.
 
 T12_auto_preprocess.sh - Two scripts which are fun for negative stain data if you already know how to process your data in Relion
-T12_auto_postprocess.sh
+T12_auto_postprocess.sh - as above.
 
 k2_realtime_preprocess.sh - Useful for working from K2 movie frame stacks. More used car salesman details below:
 
