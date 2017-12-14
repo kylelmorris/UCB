@@ -1,4 +1,5 @@
-k2_realtime_preprocess.sh - See below. Useful for working from K2 movie frame stacks
+# UCB real-time image processing
+
 k2_realtime_postprocess.sh - Useful for working from already motion corrected K2 aligned sums.
                               Less developed (requires editing of script) but currently in use.
                               Can also do 2D averaging, almost in real time.
@@ -9,7 +10,7 @@ k2_realtime_manualpick.sh - Useful for inspecting mics and picks during real tim
 T12_auto_preprocess.sh - Two scripts which are fun for negative stain data if you already know how to process your data in Relion
 T12_auto_postprocess.sh
 
-# UCB real-time image processing
+k2_realtime_preprocess.sh - Useful for working from K2 movie frame stacks. More used car salesman details below:
 
 Scripts useful to EM related processes at UC Berkeley
 
