@@ -8,12 +8,13 @@
 
 # General
 ext="*_noDW.mrc"	#File suffix and extension to use for linking micrographs
+sleep=120		#Number of seconds to wait between each iteration of real time processing
 
 # Session monitoring
 check=n			      #Check if scope if still writing micrographs?
 
 # Particle extraction
-angpix=0.893
+angpix=1.15
 extract_size=352
 extract_bin=88		#Make the same as extract_size if no binning
 mpiproc=4
@@ -25,16 +26,16 @@ gpu="0:0:1:1"
 
 # gautomatch
 file="*.mrc"	#File suffix and extension gautomatch will use
-pickd=180
+pickd=200
 
 # 2D
-run2d=n			#Set to y to run 2D averaging
+run2d=y			#Set to y to run 2D averaging
 mpiproc2d=12
 gpu2d="0:0:1:1:2:2:3:3"
 iteration2D=25
-particled=220		#In Angstroms
+particled=300		#In Angstroms
 maxsig=5		#No less than 5 for 2D, no less than 200 for 3D
-minpart=20000 #Minimum particle number to have before proceeding with 2D averaging
+minpart=5000 #Minimum particle number to have before proceeding with 2D averaging
 
 #################################################################################
 
@@ -83,29 +84,29 @@ while true ; do
     echo "Not checking latest micrograph age, edit script if you want this checked."
   fi
 
-  #Run gctf within relion
-  #printf "\nRunning gctf with phase estimation using Relion\n"
-  #mpirun -n 4 `which relion_run_ctffind_mpi` --i micrographs.star --o CtfFind/Realtime --CS 2.6 --HT 300 --AmpCnst 0.1 --XMAG 10000 --DStep $angpix --Box 512 --ResMin 30 --ResMax 2.3 --dFMin 3000 --dFMax 10000 --FStep 500 --dAst 100 --do_phaseshift  --phase_min 0 --phase_max 180 --phase_step 10 --use_gctf --gctf_exe $gctf --angpix $angpix --EPA --gpu "" --extra_gctf_options " --resH 2.3 --resL 15 --phase_shift_L 0.0 --phase_shift_H 180.0 --phase_shift_S 10 --phase_shift_T 1  " --only_do_unfinished > relion_run_ctffind.log
-  #scp -r CtfFind/Realtime/micrographs_ctf.star micrographs_all_gctf.star
+  Run gctf within relion
+  printf "\nRunning gctf with phase estimation using Relion\n"
+  mpirun -n 4 `which relion_run_ctffind_mpi` --i micrographs.star --o CtfFind/Realtime --CS 2.6 --HT 300 --AmpCnst 0.1 --XMAG 10000 --DStep $angpix --Box 512 --ResMin 30 --ResMax 2.3 --dFMin 10000 --dFMax 40000 --FStep 500 --dAst 100 --use_gctf --gctf_exe $gctf --angpix $angpix --ignore_ctffind_params --EPA --gpu "" --extra_gctf_options " " --only_do_unfinished > relion_run_ctffind.log
+  scp -r CtfFind/Realtime/micrographs_ctf.star micrographs_all_gctf.star
 
-  #printf "\nRunning gctf with phase estimation as standalone\n"
+  #printf "\nRunning gctf as standalone\n"
   #cd CtfFind/Realtime/Micrographs
   #ln -sf ../../../Micrographs/*mrc .
   #cd ../../../
-  #gctf-v1.06 --apix 0.893 --ac 0.1  --kV 300 --Cs 2.6 --phase_shift_L 0 --phase_shift_H 180 --phase_shift_T 2 --gid 0:1:2:3 --do_unfinished CtfFind/Realtime/Micrographs/*.mrc
+  #gctf-v1.06 --apix 1.15 --ac 0.1  --kV 300 --Cs 2.6 --gid 0:1:2:3 --do_unfinished CtfFind/Realtime/Micrographs/*noDW.mrc
   #gctf-v1.18 --apix 0.893 --ac 0.1  --kV 300 --Cs 2.6 --phase_shift_L 0 --phase_shift_H 180 --phase_shift_T 2 --gid 0 --do_EPA 1 --bfac 300 --do_validation 1 CtfFind/Realtime/Micrographs/*.mrc
-  #scp -r CtfFind/Realtime/micrographs_ctf.star micrographs_all_gctf.star
+  #scp -r micrographs_all_gctf.star CtfFind/Realtime/micrographs_ctf.star
 
-  printf "\nRunning CTFFIND4 with phase estimation within Relion\n"
-  `which relion_run_ctffind` --i Import/job001/micrographs.star --o CtfFind/job003/ --CS 2.6 --HT 300 --AmpCnst 0.1 --XMAG 10000 --DStep 0.893 --Box 512 --ResMin 30 --ResMax 5 --dFMin 1000 --dFMax 10000 --FStep 500 --dAst 100 --do_phaseshift  --phase_min 0 --phase_max 180 --phase_step 10 --ctffind_exe /usr/local/software/bin/ctffind4 --ctfWin -1 --is_ctffind4
+  #printf "\nRunning CTFFIND4 with phase estimation within Relion\n"
+  #'which relion_run_ctffind` --i Import/job001/micrographs.star --o CtfFind/job003/ --CS 2.6 --HT 300 --AmpCnst 0.1 --XMAG 10000 --DStep 0.893 --Box 512 --ResMin 30 --ResMax 5 --dFMin 1000 --dFMax 10000 --FStep 500 --dAst 100 --do_phaseshift  --phase_min 0 --phase_max 180 --phase_step 10 --ctffind_exe /usr/local/software/bin/ctffind4 --ctfWin -1 --is_ctffind4
 
-  #plot phase evolution
+  #plot phase evolution and ctf estimation
   if [[ $showplot == "y" ]]; then
     killall eog
     relion_star_plot_metrics.sh micrographs_all_gctf.star
-    eog relion_star_plot_all_data.png &
+    eog micrographs_all_gctf_plots/relion_star_plot_all_data.png &
   else
-    echo "Skipping phase plot display"
+    echo "Skipping gctf plot display"
   fi
 
   #Gather defocus information
@@ -116,7 +117,7 @@ while true ; do
   ln -sf ../../../Micrographs/*.mrc .
   cd ../../..
   printf "\ngautomatch picking...\n"
-  gautomatch --apixM $angpix --diameter $pickd --speed 2 --lp 35 --min_dist 150 AutoPick/Realtime/Micrographs/${file} --do_unfinished > gautomatch.log
+  gautomatch --apixM $angpix --diameter $pickd --speed 2 --lp 35 --min_dist 200 AutoPick/Realtime/Micrographs/${file} --do_unfinished > gautomatch.log
 
   #Link automatch files into Micrograph directory
   cd Micrographs
@@ -169,9 +170,9 @@ while true ; do
 
       if [ $ptclno -gt $minpart ] ; then
         printf "\nMinimum particle number reached, running 2D averaging...\n"
-        #mpirun -n $mpiproc `which relion_refine_mpi` --o ./Class2D/Realtime/run --i ./particles.star --dont_combine_weights_via_disc --pool 3 --ctf  --iter $iteration2D --tau2_fudge 2 --particle_diameter $particled --K $classno --flatten_solvent --zero_mask --strict_highres_exp 15 --oversampling 1 --psi_step 12 --offset_range 5 --offset_step 2 --norm --scale  --j 1 --gpu "${gpu2d}"
+        mpirun -n $mpiproc `which relion_refine_mpi` --o ./Class2D/Realtime/run --i ./particles.star --dont_combine_weights_via_disc --pool 3 --ctf  --iter $iteration2D --tau2_fudge 2 --particle_diameter $particled --K $classno --flatten_solvent --zero_mask --strict_highres_exp 15 --oversampling 1 --psi_step 12 --offset_range 5 --offset_step 2 --norm --scale  --j 1 --gpu "${gpu2d}"
 
-        mpirun -n $mpiproc `which relion_refine_mpi` --o ./Class2D/Realtime/run --i ./particles.star --dont_combine_weights_via_disc --pool 3 --ctf  --iter $iteration2D --write_subsets 1 --subset_size 10000 --max_subsets 3 --maxsig $maxsig --tau2_fudge 2 --particle_diameter $particled --K $classno --flatten_solvent  --zero_mask --oversampling 1 --psi_step 12 --offset_range 5 --offset_step 2 --norm --scale --dont_check_norm --j 1 --gpu "${gpu2d}" #--strict_highres_exp 15
+        #mpirun -n $mpiproc `which relion_refine_mpi` --o ./Class2D/Realtime/run --i ./particles.star --dont_combine_weights_via_disc --pool 3 --ctf  --iter $iteration2D --write_subsets 1 --subset_size 10000 --max_subsets 3 --maxsig $maxsig --tau2_fudge 2 --particle_diameter $particled --K $classno --flatten_solvent  --zero_mask --oversampling 1 --psi_step 12 --offset_range 5 --offset_step 2 --norm --scale --dont_check_norm --j 1 --gpu "${gpu2d}" #--strict_highres_exp 15
       else
         printf "\nNot running 2D averaging, minimum particle number not reached\n"
       fi
@@ -182,7 +183,7 @@ while true ; do
 
   fi
 
-  printf "\nSleeping for 2 sec before next iteration of post-processing...\n"
-  sleep 2
+  printf "\nSleeping for ${sleep} sec before next iteration of post-processing...\n"
+  sleep ${sleep}
 
 done

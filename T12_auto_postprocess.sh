@@ -6,14 +6,16 @@
 angpix="3.16"
 cs="6.3"
 V="120"
-gautomatch='/mount/local/app/Gautomatch/bin/Gautomatch-v0.53_sm_20_cu7.5_x86_64'
 mpiproc=3
-extract_size=192
-extract_bin=192
-bg_radius=72
+extract_size=96
+extract_bin=96
+bg_radius=36
 maxsig=3
 particled=300
 classno=42
+
+gctfexe='gctf-v1.06'
+gautoexe='gautomatch'
 
 mkdir -p Relion/Micrographs
 cd Relion/Micrographs
@@ -26,12 +28,10 @@ rm -rf micrographs.star
 relion_star_loopheader rlnMicrographName > micrographs.star
 ls Micrographs/*.mrc >> micrographs.star
 
-cd Relion
-
 mkdir -p CtfFind
 
 printf "\nRunning gctf with phase estimation using Relion\n"
-mpirun -n 4 `which relion_run_ctffind_mpi` --i micrographs.star --o CtfFind --CS ${cs} --HT ${V} --AmpCnst 0.1 --XMAG 10000 --DStep ${angpix} --Box 512 --ResMin 30 --ResMax 2.3 --dFMin 3000 --dFMax 10000 --FStep 500 --dAst 100 --use_gctf --gctf_exe "/mount/local/app/bin/gctf-v1.06" --angpix ${angpix} --EPA --gpu "" --only_do_unfinished
+mpirun -n 4 `which relion_run_ctffind_mpi` --i micrographs.star --o CtfFind --CS ${cs} --HT ${V} --AmpCnst 0.1 --XMAG 10000 --DStep ${angpix} --Box 512 --ResMin 30 --ResMax 2.3 --dFMin 3000 --dFMax 10000 --FStep 500 --dAst 100 --use_gctf --gctf_exe ${gctfexe} --angpix ${angpix} --EPA --gpu "" --only_do_unfinished
 
 scp -r CtfFind/micrographs_ctf.star micrographs_all_gctf.star
 
@@ -41,7 +41,7 @@ cd AutoPick/Micrographs
 ln -sf ../../../gauto/*.mrc .
 cd ../..
 printf "\ngautomatch picking...\n"
-$gautomatch --apixM $angpix --diameter 200 --lave_min -10.0 --lave_max 3.0 AutoPick/Micrographs/*.mrc --do_unfinished
+$gautoexe --apixM $angpix --diameter 200 --lave_min -10.0 --lave_max 3.0 AutoPick/Micrographs/*.mrc --do_unfinished
 
 #Link automatch files into Micrograph directory
 cd Micrographs

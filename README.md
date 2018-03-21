@@ -15,13 +15,15 @@ If you don’t enter options for a program then it will simply be skipped
 #### Familiar set up
 When asked, you enter options for the programs just as you would for standard command line execution
 #### Your preprocessing progress is remembered
-Stop and start the script and preprocessing will continue right where it left off
+Stop/start the script and preprocessing will continue right where it left off
 #### Your settings are remembered
-Stop and start the script and you can continue without having to re-enter your program options
+Stop/start the script and you can continue without having to re-enter your program options
+#### Smart sequential file handling
+k2_realtime_data_transfer.sh will transfer you data on the fly but movies that are currently being written to disk will not be worked on
 
 ## Notes
 
-36 frame movies from a K2 in superresolution counting can be completely processed^^ in approximately 120 seconds using 4x GTX 1070.
+36 frame movies from a K2 in superresolution counting can be completely processed^^ in approximately 120 seconds using 4x GTX 1070 workstation
 
 ^^ including full frame and 5x5 patch alignement, particle picking, full frame and per particle ctf estimation without using relion_display at each preprocessing iteration.
 
