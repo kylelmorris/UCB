@@ -32,7 +32,7 @@ else
 fi
 
 echo ""
-echo "$(basename ${0}) will monitor for incoming files with extension *.${ext}"
+echo "$(basename ${0}) will monitor for incoming files with extension *${ext}"
 echo "Notification will be sent to ${email}"
 echo "If the incoming files are older than ${time} mins"
 echo ""
