@@ -15,7 +15,7 @@ if [[ -z $1 ]] || [[ -z $2 ]] || [[ -z $3 ]]; then
   echo ""
   echo "Variables empty, usage is $(basename ${0}) (1) (2) (3)"
   echo ""
-  echo "(1) = File extension to monitor (i.e. tif, mrc, DW.mrc)"
+  echo "(1) = File extension to monitor, no wildcard (i.e. tif, mrc, DW.mrc)"
   echo "(2) = Time (mins, if last file older than this, flag up a problem)"
   echo "(3) = Email notification address"
   echo "(4) = Directory to monitor (optional, default = current directory)"
@@ -25,6 +25,19 @@ if [[ -z $1 ]] || [[ -z $2 ]] || [[ -z $3 ]]; then
 
 fi
 
+#Check if dependencies installed
+depmail=$(command -v mail)
+if [[ -z $depmail ]] ; then
+  echo "Dependency missing: mail"
+  echo "Please install using: sudo apt-get install mailutils"
+  echo ""
+  exit
+else
+  echo "Dependency found: mail"
+  echo
+fi
+
+#Did user specify directory, otherwise use current working directory
 if [[ -z $dir ]] ; then
   dir=$(pwd)
 else
