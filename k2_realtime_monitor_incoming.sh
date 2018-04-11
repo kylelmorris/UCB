@@ -4,6 +4,18 @@
 # Written by Kyle Morris, Hurley lab, 2018
 # University of California, Berkeley
 
+#Check if dependencies installed
+depmail=$(command -v mail)
+if [[ -z $depmail ]] ; then
+  echo "Dependency missing: mail"
+  echo "Please install using: sudo apt-get install mailutils"
+  echo ""
+  exit
+else
+  echo "Dependency found: mail"
+  echo
+fi
+
 ext=$1
 time=$2
 email=$3
@@ -23,18 +35,6 @@ if [[ -z $1 ]] || [[ -z $2 ]] || [[ -z $3 ]]; then
   echo "This script assumes that incoming files are labelled in numerical sequential order"
   exit
 
-fi
-
-#Check if dependencies installed
-depmail=$(command -v mail)
-if [[ -z $depmail ]] ; then
-  echo "Dependency missing: mail"
-  echo "Please install using: sudo apt-get install mailutils"
-  echo ""
-  exit
-else
-  echo "Dependency found: mail"
-  echo
 fi
 
 #Did user specify directory, otherwise use current working directory
