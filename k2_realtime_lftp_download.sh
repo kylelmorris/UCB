@@ -60,6 +60,13 @@ lftp  $PROTOCOL://$URL <<- DOWNLOAD
 
 DOWNLOAD
 
+echo "To connect manually do the following:"
+echo ""
+echo "lftp $PROTOCOL://$URL"
+echo "user $USER"
+echo "Enter password"
+echo "set ssl:verify-certificate no"
+
 echo "Sleeping for 60 seconds"
 sleep 60
 
