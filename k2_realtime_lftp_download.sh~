@@ -1,0 +1,59 @@
+#!/bin/bash
+
+PROTOCOL="ftps"
+URL="arctica-storage.dyn.berkeley.edu"
+LOCALDIR="."
+REMOTEDIR="/18May15/18May15_Pre-Process-Data/alignaver"
+USER="kmorris"
+PASS="ca&am4TA"
+REGEX="*pos8*.mrc"
+LOG="./lftp_script.log"
+
+echo "Enter ftp protocol (ftps)"
+read PROTOCOL
+echo "Enter ftp server address (arctica-storage.dyn.berkeley.edu)"
+read URL
+echo "Enter local dir for transfer (.)"
+read LOCALDIR
+echo "Enter remote directory to download from (/path/to/files)"
+read REMOTEDIR
+echo "Enter your username (this will be stored in .lftprc, delete if necessary)"
+read USER
+echo "Enter your password (this will be stored in .lftprc, delete if necessary)"
+read PASS
+echo "Enter a regular expression to identify the files (\"*.mrc\")"
+read REGEX
+LOG="./lftp_script.log"
+
+echo "exe:       "$0 > .lftprc
+echo "protocol:  "$PROTOCOL >> .lftprc
+echo "url:       "$URL >> .lftprc
+echo "localdir:  "$LOCALDIR >> .lftprc
+echo "remotedir: "$REMOTEDIR >> .lftprc
+echo "username:  "$USER >> .lftprc
+echo "password:  "$PASS >> .lftprc
+echo "regex:     "$REGEX >> .lftprc
+
+#
+i="0"
+
+while [ $i == 0 ] ; do
+
+echo "Checking for new files"
+
+lftp  $PROTOCOL://$URL <<- DOWNLOAD
+
+    user $USER "$PASS"
+
+    set ssl:verify-certificate no
+
+    cd $REMOTEDIR
+
+    mget -E $REGEX
+
+DOWNLOAD
+
+echo "Sleeping for 60 seconds"
+sleep 60
+
+done

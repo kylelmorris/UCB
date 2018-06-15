@@ -27,7 +27,7 @@ if [[ -z $1 ]] || [[ -z $2 ]] || [[ -z $3 ]]; then
   echo ""
   echo "Variables empty, usage is $(basename ${0}) (1) (2) (3)"
   echo ""
-  echo "(1) = File extension to monitor, no wildcard (i.e. tif, mrc, DW.mrc)"
+  echo "(1) = File extension to monitor, use wildcard and quotation (i.e. "*tif", "*mrc", "*pos3*DW.mrc")"
   echo "(2) = Time (mins, if last file older than this, flag up a problem)"
   echo "(3) = Email notification address"
   echo "(4) = Directory to monitor (optional, default = current directory)"
@@ -45,7 +45,7 @@ else
 fi
 
 echo ""
-echo "$(basename ${0}) will monitor for incoming files with extension *${ext}"
+echo "$(basename ${0}) will monitor for incoming files with extension ${ext}"
 echo "Notification will be sent to ${email}"
 echo "If the incoming files are older than ${time} mins"
 echo ""
