@@ -1,4 +1,4 @@
-# UCB real-time image processing
+# UC Berkeley real-time image processing
 
 k2_realtime_postprocess.sh - Useful for working from already motion corrected K2 aligned sums.
                               -Less developed (requires editing of script) but currently in use.
